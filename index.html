@@ -8,10 +8,142 @@
     <script src="mole.js"></script>
 </head>
 <body>
-    <h1>Whac a Mole</h1>
-    <h2 id="score">0</h2>
-    <!-- 3x3 -->
-    <div id="board">
+    <main class="game-shell">
+        <header class="game-header">
+            <h1>Whac a Mole</h1>
+            <h2 id="score">0</h2>
+        </header>
+
+        <section class="game-layout">
+            <!-- 3x3 -->
+            <div id="board"></div>
+
+            <aside class="quick-controls" aria-label="Game controls">
+                <button class="control-button" id="settingsButton" type="button" aria-label="Open audio settings" title="Audio settings">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 8.6A3.4 3.4 0 1 0 12 15.4 3.4 3.4 0 0 0 12 8.6Zm9 4.45v-2.1l-2.22-.74a7.3 7.3 0 0 0-.71-1.7l1.05-2.09-1.49-1.49-2.09 1.05a7.3 7.3 0 0 0-1.7-.71L13.1 3h-2.1l-.74 2.27a7.3 7.3 0 0 0-1.7.71L6.47 4.93 4.98 6.42l1.05 2.09a7.3 7.3 0 0 0-.71 1.7L3 10.95v2.1l2.32.74c.16.6.4 1.17.71 1.7l-1.05 2.09 1.49 1.49 2.09-1.05c.53.31 1.1.55 1.7.71L11 21h2.1l.74-2.27a7.3 7.3 0 0 0 1.7-.71l2.09 1.05 1.49-1.49-1.05-2.09c.31-.53.55-1.1.71-1.7L21 13.05Z"/>
+                    </svg>
+                    <span>Audio</span>
+                </button>
+
+                <button class="control-button" id="muteButton" type="button" aria-label="Mute all sounds" title="Quick mute">
+                    <svg id="soundOnIcon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2.2-3.87v7.74A4.5 4.5 0 0 0 16.5 12Zm-2.2-7.97v2.06a6.5 6.5 0 0 1 0 11.82v2.06a8.5 8.5 0 0 0 0-15.94Z"/>
+                    </svg>
+                    <svg id="soundOffIcon" class="hidden-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 9v6h4l5 4V5L8 9H4Zm11.5 1.09L17.41 12l-1.91 1.91 1.41 1.41L18.82 13.41l1.91 1.91 1.41-1.41L20.23 12l1.91-1.91-1.41-1.41-1.91 1.91-1.91-1.91-1.41 1.41Z"/>
+                    </svg>
+                    <span id="muteButtonLabel">Mute</span>
+                </button>
+
+                <button class="control-button control-button-reset" id="resetButton" type="button" aria-label="Reset game" title="Reset game">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 5a7 7 0 1 1-6.32 4H8V7H2v6h2V10.8A9 9 0 1 0 12 3c-2.65 0-5.03 1.15-6.68 2.98l1.49 1.34A6.98 6.98 0 0 1 12 5Z"/>
+                    </svg>
+                    <span>Reset</span>
+                </button>
+            </aside>
+        </section>
+    </main>
+
+    <div class="audio-modal" id="audioModal" aria-hidden="true">
+        <div class="audio-backdrop" id="audioBackdrop"></div>
+
+        <section class="audio-panel" role="dialog" aria-modal="true" aria-labelledby="audioTitle">
+            <div class="audio-panel-topline"></div>
+
+            <header class="audio-header">
+                <div>
+                    <p class="audio-kicker">MARIO MIXER</p>
+                    <h2 id="audioTitle">Audio Control</h2>
+                    <p class="audio-subtitle">Balance every sound without leaving the game.</p>
+                </div>
+
+                <button class="close-button" id="closeAudioButton" type="button" aria-label="Close audio settings">×</button>
+            </header>
+
+            <div class="audio-list">
+                <article class="audio-row">
+                    <div class="audio-row-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2.2-3.87v7.74A4.5 4.5 0 0 0 16.5 12Zm-2.2-7.97v2.06a6.5 6.5 0 0 1 0 11.82v2.06a8.5 8.5 0 0 0 0-15.94Z"/>
+                        </svg>
+                    </div>
+
+                    <div class="audio-row-main">
+                        <div class="audio-row-heading">
+                            <div>
+                                <h3>System</h3>
+                                <p>Master level for the whole game</p>
+                            </div>
+                            <span class="volume-value" id="masterVolumeValue">100%</span>
+                        </div>
+
+                        <input class="volume-slider" id="masterVolume" type="range" min="0" max="100" value="100" aria-label="System volume">
+                    </div>
+
+                    <label class="toggle" title="Enable or disable system audio">
+                        <input id="masterToggle" type="checkbox" checked>
+                        <span class="toggle-track"></span>
+                    </label>
+                </article>
+
+                <article class="audio-row">
+                    <div class="audio-row-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12.7 2 5 13h6l-.7 9L19 10h-6l-.3-8Z"/>
+                        </svg>
+                    </div>
+
+                    <div class="audio-row-main">
+                        <div class="audio-row-heading">
+                            <div>
+                                <h3>Sound Effects</h3>
+                                <p>Hit, miss and game-over sounds</p>
+                            </div>
+                            <span class="volume-value" id="sfxVolumeValue">100%</span>
+                        </div>
+
+                        <input class="volume-slider" id="sfxVolume" type="range" min="0" max="100" value="100" aria-label="Sound effects volume">
+                    </div>
+
+                    <label class="toggle" title="Enable or disable sound effects">
+                        <input id="sfxToggle" type="checkbox" checked>
+                        <span class="toggle-track"></span>
+                    </label>
+                </article>
+
+                <article class="audio-row">
+                    <div class="audio-row-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M17 3v10.55A4 4 0 1 0 19 17V7h3V3h-5ZM8 7v6.55A4 4 0 1 0 10 17V7H8Z"/>
+                        </svg>
+                    </div>
+
+                    <div class="audio-row-main">
+                        <div class="audio-row-heading">
+                            <div>
+                                <h3>Background Music</h3>
+                                <p>Looping stage music</p>
+                            </div>
+                            <span class="volume-value" id="musicVolumeValue">100%</span>
+                        </div>
+
+                        <input class="volume-slider" id="musicVolume" type="range" min="0" max="100" value="100" aria-label="Background music volume">
+                    </div>
+
+                    <label class="toggle" title="Enable or disable background music">
+                        <input id="musicToggle" type="checkbox" checked>
+                        <span class="toggle-track"></span>
+                    </label>
+                </article>
+            </div>
+
+            <footer class="audio-footer">
+                <p>Tip: use Quick Mute when you need silence instantly.</p>
+                <button id="doneAudioButton" type="button">Done</button>
+            </footer>
+        </section>
     </div>
 </body>
 </html>
