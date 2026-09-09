@@ -96,6 +96,17 @@ button {
     -ms-user-select: none;
     pointer-events: none;
 }
+.plant {
+    background-image: url('piranha-plant.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    width: 100px; 
+    height: 100px; 
+    position: absolute;
+    user-select: none;
+    cursor: pointer;
+}
 
 .quick-controls {
     display: flex;
@@ -535,4 +546,12 @@ button {
     .audio-footer {
         padding: 15px 16px 19px;
     }
+}
+/* CSS cho con chuột giả (Decoy) */
+.decoy {
+    /* Làm mờ hẳn đi (60% hiển thị) */
+    opacity: 0.9; 
+    
+    /* Thủ thuật đổi màu ảnh gốc thành màu đỏ */
+    filter: sepia(100%) saturate(500%) hue-rotate(320deg) brightness(80%);
 }

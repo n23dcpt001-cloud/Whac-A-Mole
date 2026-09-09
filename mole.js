@@ -34,6 +34,9 @@ let plantIntervalId = null;
 
 // Trình duyệt chỉ cho phát nhạc sau khi người dùng tương tác lần đầu.
 let audioUnlocked = false;
+let comboStreak = 0;
+let currDecoyTile; // Lỗ đang chứa chuột giả
+let decoyIntervalId; // Quản lý thời gian xuất hiện của chuột giả
 
 window.onload = function() {
     setGame();
@@ -60,6 +63,8 @@ function startGameIntervals() {
 
     moleIntervalId = setInterval(setMole, 1000);
     plantIntervalId = setInterval(setPlant, 2000);
+    //Chuột giả xuất hiện mỗi 2.5 giây
+    decoyIntervalId = setInterval(setDecoy, 2500);
 }
 
 function stopGameIntervals() {
@@ -72,6 +77,11 @@ function stopGameIntervals() {
         clearInterval(plantIntervalId);
         plantIntervalId = null;
     }
+    //Xóa chuột giả
+    if (decoyIntervalId !== null) {
+        clearInterval(decoyIntervalId);
+        decoyIntervalId = null;
+    }    
 }
 
 function getRandomTile() {
@@ -99,6 +109,39 @@ function setMole() {
 
     currMoleTile = document.getElementById(num);
     currMoleTile.appendChild(mole);
+}
+function setDecoy() {
+    if (gameOver) return;
+
+    if (currDecoyTile) {
+        currDecoyTile.innerHTML = "";
+    }
+
+    let num = getRandomTile(); // Dùng lại hàm lấy ô ngẫu nhiên của bạn
+    
+    // Đảm bảo không xuất hiện đè lên chuột thật hoặc cây
+    if ((currMoleTile && currMoleTile.id == num) || 
+        (currPlantTile && currPlantTile.id == num)) {
+        return;
+    }
+
+    let decoyImg = document.createElement("img");
+    decoyImg.src = "./monty-mole.png"; 
+    
+    // GẮN CLASS TỪ CSS VÀO ĐÂY:
+    decoyImg.classList.add("decoy");
+
+    currDecoyTile = document.getElementById(num);
+    currDecoyTile.appendChild(decoyImg);
+
+    // ĐIỂM CỐT LÕI: Nó sẽ tự động thụt xuống cực nhanh (400 mili-giây)
+    setTimeout(() => {
+        // Kiểm tra xem hình ảnh đó còn ở lỗ đó không thì mới xóa
+        if (currDecoyTile && currDecoyTile.id == num) {
+            currDecoyTile.innerHTML = "";
+            currDecoyTile = null;
+        }
+    }, 400); 
 }
 
 function setPlant() {
@@ -129,24 +172,46 @@ function selectTile() {
         return;
     }
 
+    // 1. NẾU ĐẬP TRÚNG CHUỘT THẬT
     if (this == currMoleTile) {
-        score += 10;
+        comboStreak++;
+        let pointsEarned = (comboStreak >= 6) ? 20 : 10;
+        score += pointsEarned;
         document.getElementById("score").innerText = score.toString();
-
         playSfx(hitSound);
-    }
+        
+        this.innerHTML = "";
+        currMoleTile = null;
+    } 
+    // 2. NẾU ĐẬP TRÚNG MA (CÂY PIRANHA) - THUA LUÔN
     else if (this == currPlantTile) {
         document.getElementById("score").innerText = "GAME OVER: " + score.toString();
         gameOver = true;
-
+        
         stopGameIntervals();
         bgMusic.pause();
-
         playSfx(gameOverSound);
+    } 
+    // 3. NẾU ĐẬP TRÚNG CHUỘT GIẢ (DECOY) - BỊ LỪA
+    else if (this == currDecoyTile) {
+        comboStreak = 0; // Mất combo
+        score -= 5;      // Trừ điểm
+        if (score < 0) score = 0; 
+        document.getElementById("score").innerText = score.toString();
+        
+        playSfx(clickSound); // Phát âm thanh miss
+        
+        this.innerHTML = "";
+        currDecoyTile = null;
     }
+    // 4. NẾU ĐẬP TRƯỢT (VÀO KHOẢNG TRỐNG)
     else {
-        // Dùng đúng file thật đang có trong folder sounds.
-        playSfx(clickSound);
+        comboStreak = 0; 
+        score -= 5;
+        if (score < 0) score = 0; 
+        document.getElementById("score").innerText = score.toString();
+        
+        playSfx(clickSound); 
     }
 }
 
